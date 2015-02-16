@@ -1,4 +1,4 @@
-# Linux::DesktopFiles perl module
+## Linux::DesktopFiles
 
 A fast module to get and parse the Linux .desktop files.
 
