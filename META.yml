@@ -1,0 +1,24 @@
+---
+abstract: 'Get and parse the Linux desktop files.'
+author:
+  - 'Daniel "Trizen" Șuteu <trizenx@gmail.com>'
+build_requires: {}
+configure_requires:
+  Module::Build: '0'
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4211, CPAN::Meta::Converter version 2.143240'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Linux-DesktopFiles
+provides:
+  Linux::DesktopFiles:
+    file: lib/Linux/DesktopFiles.pm
+    version: '0.09'
+requires:
+  GDBM_File: '0'
+  perl: '5.014'
+resources:
+  license: http://dev.perl.org/licenses/
+version: '0.09'

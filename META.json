@@ -1,0 +1,42 @@
+{
+   "abstract" : "Get and parse the Linux desktop files.",
+   "author" : [
+      "Daniel \"Trizen\" Șuteu <trizenx@gmail.com>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4211",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Linux-DesktopFiles",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "GDBM_File" : "0",
+            "perl" : "5.014"
+         }
+      }
+   },
+   "provides" : {
+      "Linux::DesktopFiles" : {
+         "file" : "lib/Linux/DesktopFiles.pm",
+         "version" : "0.09"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "0.09"
+}
