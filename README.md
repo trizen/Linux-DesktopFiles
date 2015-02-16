@@ -2,7 +2,7 @@
 
 A fast module to get and parse the Linux .desktop files.
 
-INSTALLATION
+### INSTALLATION
 
 To install this module type the following:
 
@@ -11,7 +11,7 @@ To install this module type the following:
          ./Build test
          ./Build install
 
-SUPPORT AND DOCUMENTATION
+### SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the
 perldoc command.
@@ -33,7 +33,7 @@ You can also look for information at:
         http://search.cpan.org/dist/Linux-DesktopFiles/
 
 
-LICENSE AND COPYRIGHT
+### LICENSE AND COPYRIGHT
 
 Copyright (C) 2012-2015 Daniel "Trizen" Șuteu
 
