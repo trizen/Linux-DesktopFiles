@@ -253,7 +253,7 @@ sub get_desktop_files {
 sub parse {
     my ($self, $file_data, @desktop_files) = @_;
 
-    foreach my $desktop_file(@desktop_files) {
+    foreach my $desktop_file (@desktop_files) {
 
         if (defined $self->{skip_filename_re}) {
             substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/o && next;
@@ -275,6 +275,9 @@ sub parse {
         if (exists $info{Hidden}) {
             next if exists $self->{true_values}{$info{Hidden}};
         }
+
+        # If no 'Name' enrty is defined, create one with the name of the file
+        $info{Name} //= substr($desktop_file, rindex($desktop_file, '/') + 1, -8);
 
         (
          my @categories =
@@ -331,8 +334,7 @@ sub parse {
             }
         }
         elsif ($self->{keep_unknown_categories}) {
-            push @{$file_data->{$self->{unknown_category_key}}},
-              {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
+            push @{$file_data->{$self->{unknown_category_key}}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
         }
     }
 }
