@@ -634,6 +634,10 @@ This function is equivalent with:
 
 =back
 
+=head1 REPOSITORY
+
+L<https://github.com/trizen/Linux-DesktopFiles>
+
 =head1 AUTHOR
 
 Daniel "Trizen" Șuteu, E<lt>trizenx@gmail.comE<gt>
