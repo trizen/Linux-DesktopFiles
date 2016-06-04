@@ -4,7 +4,7 @@ package Linux::DesktopFiles;
 # The best uses of this module is to generate real
 # time menus, based on the content of desktop files.
 
-#use 5.014;
+use 5.014;
 #use strict;
 #use warnings;
 

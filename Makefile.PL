@@ -4,12 +4,12 @@ use ExtUtils::MakeMaker;
 WriteMakefile
 (
   'PL_FILES' => {},
+  'VERSION_FROM' => 'lib/Linux/DesktopFiles.pm',
   'PREREQ_PM' => {
                    'GDBM_File' => 0
                  },
-  'VERSION_FROM' => 'lib/Linux/DesktopFiles.pm',
-  'INSTALLDIRS' => 'site',
   'NAME' => 'Linux::DesktopFiles',
+  'INSTALLDIRS' => 'site',
   'EXE_FILES' => []
 )
 ;
