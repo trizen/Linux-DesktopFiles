@@ -8,7 +8,7 @@ package Linux::DesktopFiles;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub new {
     my ($class, %opts) = @_;
@@ -644,7 +644,7 @@ Daniel "Trizen" Șuteu, E<lt>trizenx@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012-2015
+Copyright (C) 2012-2016
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.14.2 or,

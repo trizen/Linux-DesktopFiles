@@ -1,5 +1,9 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
+0.10  2016-06-04
+    - When a file does not have a `Name`, use the name of the file.
+    - Added the Github repository URL.
+
 0.09  2015-01-29
     - More performance improvements.
     - Added the "parse" method which can parse a list of desktop files.

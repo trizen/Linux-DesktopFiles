@@ -29,7 +29,7 @@
    "provides" : {
       "Linux::DesktopFiles" : {
          "file" : "lib/Linux/DesktopFiles.pm",
-         "version" : "0.09"
+         "version" : "0.10"
       }
    },
    "release_status" : "stable",
@@ -41,6 +41,6 @@
          "url" : "https://github.com/trizen/Linux-DesktopFiles"
       }
    },
-   "version" : "0.09",
+   "version" : "0.10",
    "x_serialization_backend" : "JSON::PP version 2.27400"
 }
