@@ -17,6 +17,11 @@ my $builder = Module::Build->new(
     configure_requires => {
                            'Module::Build' => 0,
                           },
+    meta_merge => {
+                   resources => {
+                                 repository => 'https://github.com/trizen/Linux-DesktopFiles'
+                                }
+                  },
 
     requires => {
                  'perl'      => 5.014,
