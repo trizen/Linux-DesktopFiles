@@ -15,12 +15,12 @@ name: Linux-DesktopFiles
 provides:
   Linux::DesktopFiles:
     file: lib/Linux/DesktopFiles.pm
-    version: '0.10'
+    version: '0.11'
 requires:
   GDBM_File: '0'
   perl: '5.014'
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://github.com/trizen/Linux-DesktopFiles
-version: '0.10'
+version: '0.11'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

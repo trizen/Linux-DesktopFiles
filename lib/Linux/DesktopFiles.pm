@@ -8,7 +8,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub new {
     my ($class, %opts) = @_;
@@ -168,15 +168,21 @@ sub get_icon_path {
                     push @icon_dirs, $icon_dir if -d $icon_dir;
                     if (-e (my $index_theme = "$icon_dir/index.theme")) {
 
-                        local $/ = "";
-                        open my $fh, '<', $index_theme or next;
+                        sysopen my $fh, $index_theme, 0 or next;
 
-                        while (defined(my $para = <$fh>)) {
-                            if ($para =~ /^\[Icon Theme\]/) {
-                                if ($para =~ /^Inherits=(\S+)/m) {
-                                    my $base = substr($icon_dir, 0, rindex($icon_dir, '/'));
-                                    push @icon_theme_dirs, map { "$base/$_" } split(/,/, $1);
+                        while (defined(my $line = <$fh>)) {
+                            if ($line =~ /^\[Icon Theme\]/) {
+
+                                local $/ = "";
+                                while (defined(my $para = <$fh>)) {
+                                    if ($para =~ /^Inherits=(\S+)/m) {
+                                        my $base = substr($icon_dir, 0, rindex($icon_dir, '/'));
+                                        push @icon_theme_dirs, map { "$base/$_" } split(/,/, $1);
+                                        last;
+                                    }
+                                    last if $para =~ /^\[.*?\]/m;
                                 }
+
                                 last;
                             }
                         }
