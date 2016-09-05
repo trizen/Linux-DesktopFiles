@@ -393,7 +393,11 @@ The following constructor methods are available:
 This method constructs a new C<Linux::DesktopFiles> object and returns it.
 Key/value pair arguments may be provided to set up the initial state.
 
-By default, C<Linux::DesktopFiles->new()> is equivalent with:
+By default,
+
+    Linux::DesktopFiles->new()
+
+is equivalent with:
 
     Linux::DesktopFiles->new(
         abs_icon_paths   => 0,
