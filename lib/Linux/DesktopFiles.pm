@@ -5,6 +5,7 @@ package Linux::DesktopFiles;
 # time menus, based on the content of desktop files.
 
 use 5.014;
+
 #use strict;
 #use warnings;
 
@@ -18,7 +19,6 @@ sub new {
     my @default_arguments = qw(
       abs_icon_paths
       icon_db_filename
-      keep_empty_categories
       keep_unknown_categories
       unknown_category_key
       case_insensitive_cats
@@ -41,12 +41,12 @@ sub new {
     @{$self}{@default_arguments} = delete @opts{@default_arguments};
 
     $self->{desktop_files_paths} =
-      ref $opts{desktop_files_paths} eq 'ARRAY'
+      ref($opts{desktop_files_paths}) eq 'ARRAY'
       ? delete($opts{desktop_files_paths})
       : [qw(/usr/share/applications)];
 
     $self->{keys_to_keep} =
-      ref $opts{keys_to_keep} eq 'ARRAY'
+      ref($opts{keys_to_keep}) eq 'ARRAY'
       ? delete($opts{keys_to_keep})
       : [qw(Exec Name Icon)];
 
@@ -62,7 +62,7 @@ sub new {
 
     $self->{categories} = {
         map { ($self->{case_insensitive_cats} ? (lc $_) =~ tr/_a-z0-9/_/cr : $_) => undef }
-          ref $opts{categories} eq 'ARRAY'
+          ref($opts{categories}) eq 'ARRAY'
         ? @{delete($opts{categories})}
         : qw(
           Utility
@@ -79,7 +79,7 @@ sub new {
     };
 
     $self->{true_values} =
-      ref $opts{true_value} eq 'ARRAY'
+      ref($opts{true_value}) eq 'ARRAY'
       ? {map { $_ => 1 } @{delete($opts{true_value})}}
       : {
          'true' => 1,
@@ -87,7 +87,7 @@ sub new {
          '1'    => 1
         };
 
-    $self->{home_dir} //= $ENV{HOME} || $ENV{LOGDIR};
+    $self->{home_dir}               //= $ENV{HOME};
     $self->{gtk_rc_filename}        //= "$self->{home_dir}/.gtkrc-2.0";
     $self->{terminal}               //= $ENV{TERM};
     $self->{terminalization_format} //= q{%s -e '%s'};
@@ -141,7 +141,9 @@ sub get_icon_path {
 
     my $icon = $self->{icons_db}{$icon_name};
 
-    if (not defined $icon and not $self->{_stored_icons}++) {
+    if (not defined $icon and not $self->{_stored_icons}) {
+
+        $self->{_stored_icons} //= 1;
 
         my $icon_theme =
           (!$self->{strict_icon_dirs} || $self->{use_current_theme_icons})
@@ -220,9 +222,9 @@ sub get_icon_path {
             File::Find::find(
                 {
                  wanted => sub {
-                     return if substr($File::Find::name, -4, 1) ne q{.};
-                     return if substr($_, -4, 4, q{}) eq '.svg' and $self->{skip_svg_icons};
-                     return if exists $self->{icons_db}{$_};
+                     (substr($File::Find::name, -4, 1) ne q{.}) && return;
+                     (substr($_, -4, 4, q{}) eq '.svg' and $self->{skip_svg_icons}) && return;
+                     (exists $self->{icons_db}{$_}) && return;
                      $self->{icons_db}{$_} = $File::Find::name;
                  },
                 } => @uniq_dirs
@@ -390,43 +392,48 @@ The following constructor methods are available:
 
 This method constructs a new C<Linux::DesktopFiles> object and returns it.
 Key/value pair arguments may be provided to set up the initial state.
-The following options correspond to attribute methods described below:
 
-   KEY                         DEFAULT
-   -----------                 --------------------
-   abs_icon_paths              0
-   skip_svg_icons              0
-   icon_db_filename            undef
-   icon_dirs_first             undef
-   icon_dirs_second            undef
-   icon_dirs_last              undef
+By default, C<Linux::DesktopFiles->new()> is equivalent with:
 
-   case_insensitive_cats       0
-   keep_empty_categories       0
-   strict_icon_dirs            0
-   use_current_theme_icons     0
-   terminalize                 0
-   terminal                    $ENV{TERM}
-   home_dir                    $ENV{HOME} || $ENV{LOGDIR}
-   gtk_rc_filename             "~/.gtkrc-2.0"
-   true_values                 ['true', 'True', '1']
+    Linux::DesktopFiles->new(
+        abs_icon_paths   => 0,
+        skip_svg_icons   => 0,
+        icon_db_filename => undef,
 
-   skip_entry                 undef
-   skip_filename_re           undef
-   substitutions              undef
+        icon_dirs_first  => [],
+        icon_dirs_second => [],
+        icon_dirs_last   => [],
 
-   desktop_files_paths         ['/usr/share/applications']
-   keys_to_keep                ["Name", "Exec", "Icon"]
-   categories                  [qw( Utility
-                                    Development
-                                    Education
-                                    Game
-                                    Graphics
-                                    AudioVideo
-                                    Network
-                                    Office
-                                    Settings
-                                    System )]
+        case_insensitive_cats   => 0,
+        strict_icon_dirs        => 0,
+        use_current_theme_icons => 0,
+
+        terminal    => $ENV{TERM},
+        terminalize => 0,
+
+        home_dir        => $ENV{HOME},
+        gtk_rc_filename => "$ENV{HOME}/.gtkrc-2.0",
+
+        skip_entry       => [],
+        skip_filename_re => [],
+        substitutions    => [],
+
+        desktop_files_paths => ['/usr/share/applications'],
+        keys_to_keep        => ["Name", "Exec", "Icon"],
+        true_values         => ['true', 'True', '1'],
+        categories          => [
+                                qw( Utility
+                                  Development
+                                  Education
+                                  Game
+                                  Graphics
+                                  AudioVideo
+                                  Network
+                                  Office
+                                  Settings
+                                  System )
+                               ],
+      );
 
 =back
 
@@ -453,11 +460,6 @@ will be ignored.
 =head2 Other options
 
 =over 4
-
-=item keep_empty_categories => 1
-
-If a category is empty, keep it in the returned hash reference when
-I<parse_desktop_files> is called.
 
 =item keep_unknown_categories => 1
 
