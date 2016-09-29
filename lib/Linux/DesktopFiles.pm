@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 sub new {
     my ($class, %opts) = @_;
@@ -141,9 +141,9 @@ sub get_icon_path {
 
     my $icon = $self->{icons_db}{$icon_name};
 
-    if (not defined $icon and not $self->{_stored_icons}) {
+    if (not defined($icon) and not exists($self->{_stored_icons})) {
 
-        $self->{_stored_icons} //= 1;
+        $self->{_stored_icons} = 1;
 
         my $icon_theme =
           (!$self->{strict_icon_dirs} || $self->{use_current_theme_icons})
@@ -506,7 +506,7 @@ I<NOTE:> It works with Gtk3 as well.
 
 =item true_values => [qw(1 true True)]
 
-This values are used to test  for trueness some values from the desktop files.
+This values are used to test for trueness some values from the desktop files.
 
 =back
 
@@ -516,13 +516,13 @@ This values are used to test  for trueness some values from the desktop files.
 
 =item abs_icon_paths => 1
 
-Full icon paths for B<Icon> values.
+Resolve the absolute file paths for B<Icon> values.
 
 =item icon_db_filename => "filename.db"
 
-GDBM database name used to store icon names as keys and icon paths as
+A database file which will be used to store icon names as keys and icon paths as
 values for a faster lookup (used with GDBM_File).
-I<NOTE:> Works in combination with B<abs_icon_paths>
+I<NOTE:> Works in combination with B<abs_icon_paths>.
 
 =item skip_svg_icons => 1
 
@@ -545,12 +545,12 @@ I</usr/share/icons/hicolor> and some other directories.
 
 =item strict_icon_dirs => 1
 
-Be very strict and use only the directories specified by you in either
+Be very strict and use only the directories specified in either
 one of I<icon_dirs_first>, I<icon_dirs_second> and/or I<icon_dirs_last>.
 
 =item use_current_theme_icons => 1
 
-Use your current theme icons (from ~/.gtkrc-2.0), even when I<strict_icon_dirs>
+Use the current icon theme (from ~/.gtkrc-2.0) even when I<strict_icon_dirs>
 is set to a true value. This option is useful when you want to get only the icons
 from the current theme. It is usually used in combination with I<strict_icon_dirs>.
 When I<strict_icon_dirs> is set a false value, this option is true by default.
