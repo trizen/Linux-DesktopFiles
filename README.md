@@ -17,7 +17,7 @@ After installing, you can find documentation for this module with the
 perldoc command.
 
     perldoc Linux::DesktopFiles
-    
+
 You can also look for information at:
 
     RT, CPAN's request tracker (report bugs here)
@@ -35,7 +35,7 @@ You can also look for information at:
 
 ### LICENSE AND COPYRIGHT
 
-Copyright (C) 2012-2015 Daniel "Trizen" Șuteu
+Copyright (C) 2012-2016 Daniel "Trizen" Șuteu
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a

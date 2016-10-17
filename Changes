@@ -2,7 +2,7 @@ Revision history for Perl extension Linux::DesktopFiles.
 
 0.12  2016-10-17
     - Removed the no-op `keep_empty_categories` option.
-    - Minor documentation improvements.
+    - Documentation improvements.
 
 0.11  2016-07-24
     - Better detection for inherited icon themes.
