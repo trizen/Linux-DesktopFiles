@@ -57,7 +57,7 @@ sub new {
               $self->{terminalize} ? qw(Terminal) : ();
         };
         local $" = q{|};
-        qr/@keys/;
+        qr/^(@keys)=(.*\S)/m;
     };
 
     $self->{categories} = {
@@ -264,7 +264,7 @@ sub parse {
     foreach my $desktop_file (@desktop_files) {
 
         if (defined $self->{skip_filename_re}) {
-            substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/o && next;
+            substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/ && next;
         }
 
         sysopen my $desktop_fh, $desktop_file, 0 or next;
@@ -274,7 +274,7 @@ sub parse {
             $file = substr($file, 0, $index);
         }
 
-        my %info = $file =~ m{^($self->{file_keys_re})=(.*\S)}gmo;
+        my %info = $file =~ /$self->{file_keys_re}/g;
 
         if (exists $info{NoDisplay}) {
             next if exists $self->{true_values}{$info{NoDisplay}};
@@ -324,7 +324,7 @@ sub parse {
 
         }
 
-        index($info{Exec}, ' %') != -1 && $info{Exec} =~ s/ +%.*//os;
+        index($info{Exec}, ' %') != -1 && $info{Exec} =~ s/ +%.*//s;
 
         if (    $self->{terminalize}
             and defined $info{Terminal}

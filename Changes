@@ -1,6 +1,6 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
-0.12  2016-09-29
+0.12  2016-10-17
     - Removed the no-op `keep_empty_categories` option.
     - Minor documentation improvements.
 
