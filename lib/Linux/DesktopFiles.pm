@@ -451,7 +451,7 @@ Set directories where to find the desktop files (default: /usr/share/application
 
 =item keys_to_keep => [qw(Name Exec Icon Comment ...)]
 
-Any of the valid keys from desktop files. This keys will be stored in the retured
+Any of the valid keys from desktop files. This keys will be stored in the returned
 hash reference when calling C<$obj-E<gt>parse_desktop_files>.
 
 =item categories => [qw(Graphics Network AudioVideo ...)]
@@ -506,7 +506,7 @@ I<NOTE:> It works with Gtk3 as well.
 
 =item true_values => [qw(1 true True)]
 
-This values are used to test for trueness some values from the desktop files.
+This values are used to test for truthiness some values from the desktop files.
 
 =back
 
