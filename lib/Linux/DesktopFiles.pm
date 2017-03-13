@@ -163,11 +163,12 @@ sub get_icon_path {
                                    "$self->{home_dir}/.local/share/icons/$icon_theme"
                                   );
 
+            my %seen_dir;
             while (@icon_theme_dirs) {
                 my $icon_dir = shift @icon_theme_dirs;
 
                 if (-d $icon_dir) {
-                    push @icon_dirs, $icon_dir if -d $icon_dir;
+                    push @icon_dirs, $icon_dir;
                     if (-e (my $index_theme = "$icon_dir/index.theme")) {
 
                         sysopen my $fh, $index_theme, 0 or next;
@@ -179,7 +180,7 @@ sub get_icon_path {
                                 while (defined(my $para = <$fh>)) {
                                     if ($para =~ /^Inherits=(\S+)/m) {
                                         my $base = substr($icon_dir, 0, rindex($icon_dir, '/'));
-                                        push @icon_theme_dirs, map { "$base/$_" } split(/,/, $1);
+                                        push @icon_theme_dirs, grep { !$seen_dir{$_}++ } map { "$base/$_" } split(/,/, $1);
                                         last;
                                     }
                                     last if $para =~ /^\[.*?\]/m;
