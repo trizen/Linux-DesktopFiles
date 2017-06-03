@@ -8,7 +8,7 @@ use Module::Build;
 
 my $builder = Module::Build->new(
     dist_name         => 'Linux-DesktopFiles',
-    license           => 'perl',
+    license           => 'artistic_2',
     dist_author       => q{Daniel "Trizen" Șuteu <trizenx@gmail.com>},
     dist_version_from => 'lib/Linux/DesktopFiles.pm',
     dist_abstract     => 'Get and parse the Linux desktop files.',
