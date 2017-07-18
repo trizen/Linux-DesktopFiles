@@ -94,7 +94,7 @@ sub new {
 
     $self->{icon_search_paths} =
       ref($opt{icon_search_paths}) eq 'ARRAY'
-      ? $opt{icon_search_paths}
+      ? delete($opt{icon_search_paths})
       : ["$self->{home_dir}/.icons", "$self->{home_dir}/.local/share/icons",
          "/usr/local/share/icons",   "/usr/share/icons",
          "/usr/local/share/pixmaps", "/usr/share/pixmaps",
