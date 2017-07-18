@@ -12,7 +12,7 @@ use 5.014;
 our $VERSION = '0.13';
 
 sub new {
-    my ($class, %opts) = @_;
+    my ($class, %opt) = @_;
 
     my $self = bless {}, $class;
 
@@ -38,16 +38,16 @@ sub new {
       substitutions
       );
 
-    @{$self}{@default_arguments} = delete @opts{@default_arguments};
+    @{$self}{@default_arguments} = delete @opt{@default_arguments};
 
     $self->{desktop_files_paths} =
-      ref($opts{desktop_files_paths}) eq 'ARRAY'
-      ? delete($opts{desktop_files_paths})
+      ref($opt{desktop_files_paths}) eq 'ARRAY'
+      ? delete($opt{desktop_files_paths})
       : [qw(/usr/share/applications)];
 
     $self->{keys_to_keep} =
-      ref($opts{keys_to_keep}) eq 'ARRAY'
-      ? delete($opts{keys_to_keep})
+      ref($opt{keys_to_keep}) eq 'ARRAY'
+      ? delete($opt{keys_to_keep})
       : [qw(Exec Name Icon)];
 
     $self->{file_keys_re} = do {
@@ -62,8 +62,8 @@ sub new {
 
     $self->{categories} = {
         map { ($self->{case_insensitive_cats} ? (lc $_) =~ tr/_a-z0-9/_/cr : $_) => undef }
-          ref($opts{categories}) eq 'ARRAY'
-        ? @{delete($opts{categories})}
+          ref($opt{categories}) eq 'ARRAY'
+        ? @{delete($opt{categories})}
         : qw(
           Utility
           Development
@@ -79,8 +79,8 @@ sub new {
     };
 
     $self->{true_values} =
-      ref($opts{true_value}) eq 'ARRAY'
-      ? {map { $_ => 1 } @{delete($opts{true_value})}}
+      ref($opt{true_value}) eq 'ARRAY'
+      ? {map { $_ => 1 } @{delete($opt{true_value})}}
       : {
          'true' => 1,
          'True' => 1,
@@ -92,11 +92,19 @@ sub new {
     $self->{terminal}               //= $ENV{TERM};
     $self->{terminalization_format} //= q{%s -e '%s'};
 
+    $self->{icon_search_paths} =
+      ref($opt{icon_search_paths}) eq 'ARRAY'
+      ? $opt{icon_search_paths}
+      : ["$self->{home_dir}/.icons", "$self->{home_dir}/.local/share/icons",
+         "/usr/local/share/icons",   "/usr/share/icons",
+         "/usr/local/share/pixmaps", "/usr/share/pixmaps",
+        ];
+
     if (defined $self->{icon_db_filename} and $self->{abs_icon_paths}) {
         $self->_init_icon_database() || warn "Can't open/create database '$self->{icon_db_filename}': $!";
     }
 
-    foreach my $key (keys %opts) {
+    foreach my $key (keys %opt) {
         warn "Invalid option or value: $key";
     }
 
@@ -157,11 +165,7 @@ sub get_icon_path {
         }
 
         if (defined($icon_theme) and (!$self->{strict_icon_dirs} || $self->{use_current_theme_icons})) {
-            my @icon_theme_dirs = (
-                                   "/usr/share/icons/$icon_theme",
-                                   "$self->{home_dir}/.icons/$icon_theme",
-                                   "$self->{home_dir}/.local/share/icons/$icon_theme"
-                                  );
+            my @icon_theme_dirs = (map { "$_/$icon_theme" } @{$self->{icon_search_paths}});
 
             my %seen_dir;
             while (@icon_theme_dirs) {
@@ -179,8 +183,9 @@ sub get_icon_path {
                                 local $/ = "";
                                 while (defined(my $para = <$fh>)) {
                                     if ($para =~ /^Inherits=(\S+)/m) {
-                                        my $base = substr($icon_dir, 0, rindex($icon_dir, '/'));
-                                        push @icon_theme_dirs, grep { !$seen_dir{$_}++ } map { "$base/$_" } split(/,/, $1);
+                                        foreach my $path (@{$self->{icon_search_paths}}) {
+                                            push @icon_theme_dirs, grep { !$seen_dir{$_}++ } map { "$path/$_" } split(/,/, $1);
+                                        }
                                         last;
                                     }
                                     last if $para =~ /^\[.*?\]/m;
@@ -438,6 +443,11 @@ is equivalent with:
                                   Settings
                                   System )
                                ],
+        icon_search_paths   => [
+         "$ENV{HOME}/.icons",        "$ENV{HOME}/.local/share/icons",
+         "/usr/local/share/icons",   "/usr/share/icons",
+         "/usr/local/share/pixmaps", "/usr/share/pixmaps",
+        ],
       );
 
 =back
@@ -529,6 +539,10 @@ I<NOTE:> Works in combination with B<abs_icon_paths>.
 
 Ignore SVG icons when looking for absolute icon paths.
 
+=item icon_search_paths => [dir1, dir2, ...]
+
+The icons paths where to look for icons and where to locate the current icon theme.
+
 =item icon_dirs_first => [dir1, dir2, ...]
 
 When looking for absolute icon paths, look in this directories first,
@@ -537,12 +551,12 @@ before looking in the directories of the current icon theme.
 =item icon_dirs_second => [dir1, dir2, ...]
 
 When looking for full icon paths, look in this directories as a second
-icon theme. (Before I</usr/share/pixmaps>)
+icon theme. (Before the B<pixmaps> directories)
 
 =item icon_dirs_last => [dir1, dir2, ...]
 
-Look in this directories at the very last, after looked in I</usr/share/pixmaps>,
-I</usr/share/icons/hicolor> and some other directories.
+Look in this directories at the very last, after looked in the B<pixmaps>
+and some other directories.
 
 =item strict_icon_dirs => 1
 

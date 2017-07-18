@@ -3,13 +3,13 @@ require 5.014;
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'INSTALLDIRS' => 'site',
-  'VERSION_FROM' => 'lib/Linux/DesktopFiles.pm',
   'NAME' => 'Linux::DesktopFiles',
+  'VERSION_FROM' => 'lib/Linux/DesktopFiles.pm',
   'PREREQ_PM' => {
                    'GDBM_File' => 0
                  },
-  'PL_FILES' => {},
-  'EXE_FILES' => []
+  'INSTALLDIRS' => 'site',
+  'EXE_FILES' => [],
+  'PL_FILES' => {}
 )
 ;
