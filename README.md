@@ -41,7 +41,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
 copy of the full license at:
 
-L<https://opensource.org/licenses/artistic-license-2.0.php>
+https://opensource.org/licenses/artistic-license-2.0.php
 
 Any use, modification, and distribution of the Standard or Modified
 Versions is governed by this Artistic License. By using, modifying or
