@@ -1,5 +1,11 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
+0.20  2017-09-15
+    - Added support for desktop IDs.
+      When a desktop entry is located under a local directory,
+      it will overwrite an existent file with the same basename.
+    - Removed the support for resolving absolute icon paths, as it was broken beyond repair.
+
 0.13  2017-06-03
     - Fixed a potential infinite loop for circular inherited icon directories.
 

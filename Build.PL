@@ -11,7 +11,7 @@ my $builder = Module::Build->new(
     license           => 'artistic_2',
     dist_author       => q{Daniel "Trizen" Șuteu <trizenx@gmail.com>},
     dist_version_from => 'lib/Linux/DesktopFiles.pm',
-    dist_abstract     => 'Get and parse the Linux desktop files.',
+    dist_abstract     => 'Fast parsing of the Linux desktop files.',
     release_status    => 'stable',
 
     configure_requires => {
@@ -26,8 +26,7 @@ my $builder = Module::Build->new(
                   },
 
     requires => {
-                 'perl'      => 5.014,
-                 'GDBM_File' => 0,
+                 'perl' => 5.014,
                 },
 
     add_to_cleanup     => ['Linux-DesktopFiles-*'],

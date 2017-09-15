@@ -1,5 +1,5 @@
 {
-   "abstract" : "Get and parse the Linux desktop files.",
+   "abstract" : "Fast parsing of the Linux desktop files.",
    "author" : [
       "Daniel \"Trizen\" Șuteu <trizenx@gmail.com>"
    ],
@@ -21,7 +21,6 @@
       },
       "runtime" : {
          "requires" : {
-            "GDBM_File" : "0",
             "perl" : "5.014"
          }
       }
@@ -29,7 +28,7 @@
    "provides" : {
       "Linux::DesktopFiles" : {
          "file" : "lib/Linux/DesktopFiles.pm",
-         "version" : "0.13"
+         "version" : "0.20"
       }
    },
    "release_status" : "stable",
@@ -39,12 +38,12 @@
       },
       "homepage" : "https://github.com/trizen/Linux-DesktopFiles",
       "license" : [
-         "http://www.perlfoundation.org/artistic_license_2_0"
+         "http://opensource.org/licenses/artistic-license-2.0.php"
       ],
       "repository" : {
          "url" : "https://github.com/trizen/Linux-DesktopFiles"
       }
    },
-   "version" : "0.13",
+   "version" : "0.20",
    "x_serialization_backend" : "JSON::PP version 2.94"
 }

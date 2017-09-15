@@ -5,9 +5,7 @@ WriteMakefile
 (
   'NAME' => 'Linux::DesktopFiles',
   'VERSION_FROM' => 'lib/Linux/DesktopFiles.pm',
-  'PREREQ_PM' => {
-                   'GDBM_File' => 0
-                 },
+  'PREREQ_PM' => {},
   'INSTALLDIRS' => 'site',
   'EXE_FILES' => [],
   'PL_FILES' => {}
