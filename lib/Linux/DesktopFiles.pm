@@ -240,7 +240,7 @@ Key/value pair arguments may be provided to set up the initial state.
 
 By default,
 
-    Linux::DesktopFiles->new()
+    Linux::DesktopFiles->new();
 
 is equivalent with:
 
@@ -248,7 +248,7 @@ is equivalent with:
 
         terminal               => $ENV{TERM},
         terminalize            => 0,
-        terminalization_format => "%s -e '%s'"
+        terminalization_format => "%s -e '%s'",
 
         skip_entry       => [],
         skip_filename_re => [],
@@ -295,7 +295,7 @@ hash reference when calling C<$obj-E<gt>parse_desktop_files>.
 =item categories => [qw(Graphics Network AudioVideo ...)]
 
 Any valid categories from the desktop files. Any category not listed will be ignored
-or stored in the I<unknown_category_key> when C<keep_unknown_categories> is set to a true value.
+or stored in the B<unknown_category_key> when C<keep_unknown_categories> is set to a true value.
 
 =back
 
@@ -306,7 +306,7 @@ or stored in the I<unknown_category_key> when C<keep_unknown_categories> is set 
 =item keep_unknown_categories => $bool
 
 When an item is not part of any specified category, will be stored inside the
-unknown category, specified by I<unknown_category_key>.
+unknown category, specified by B<unknown_category_key>.
 
 =item unknown_category_key => $name
 
@@ -320,7 +320,7 @@ any non-alpha numeric characters with an underscore. For example, "X-XFCE" becom
 
 =item terminal => $command
 
-This terminal command will be used when I<terminalize> is set to a true value.
+This terminal command will be used when B<terminalize> is set to a true value.
 
 =item terminalize => $bool
 
@@ -346,12 +346,12 @@ Used internally as:
 =item skip_filename_re => qr/regex/
 
 Skip any desktop file if its file name matches the regex.
-I<NOTE:> File names are from the last slash to the end.
+B<NOTE:> File names are from the last slash to the end.
 
 =item skip_entry  => [{key => 'KeyName', re => qr/REGEX/i}, {...}]
 
 Skip any desktop file if the value from a given key matches the specified regular expression.
-The I<key> can be any valid key from the desktop files.
+The B<key> can be any valid key from the desktop files.
 
 Example:
 
@@ -363,10 +363,10 @@ Example:
 =item substitutions => [{key => 'KeyName', re => qr/REGEX/i, value => 'Value'}, {...}]
 
 Substitute, by using a regex, in the values of the desktop files.
-The I<key> can be any valid key from the desktop files.
-The I<re> can be any valid regular expression. Anything matched by the regex, will be
-replaced the string stored in I<value>.
-For global matching/substitution, you need to set the I<global> key to a true value.
+The B<key> can be any valid key from the desktop files.
+The B<re> can be any valid regular expression. Anything matched by the regex, will be
+replaced the string stored in B<value>.
+For global matching/substitution, you need to set the B<global> key to a true value.
 
 Example:
 
@@ -393,7 +393,7 @@ Parse a list of desktop files into a HASH ref.
 =item $obj->parse_desktop_files()
 
 It returns a HASH reference which categories names as keys, and ARRAY references
-as values which contains HASH references with the keys specified in the I<keys_to_keep>
+as values which contains HASH references with the keys specified in the B<keys_to_keep>
 option, and values from the desktop files.
 
 The returned HASH reference might look something like this:
