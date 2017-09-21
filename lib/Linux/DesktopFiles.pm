@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 our %TRUE_VALUES = (
                     'true' => 1,
@@ -112,23 +112,29 @@ sub parse {
 
     foreach my $desktop_file (@desktop_files) {
 
+        # Check the filename and skip it if it matches `skip_filename_re`
         if (defined $self->{skip_filename_re}) {
             substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/ && next;
         }
 
+        # Open and read the desktop file
         sysopen my $desktop_fh, $desktop_file, 0 or next;
         sysread $desktop_fh, (my $file), -s $desktop_file;
 
+        # Locate the "[Desktop Entry]" section
         if ((my $index = index($file, "]\n", index($file, "[Desktop Entry]") + 15)) != -1) {
             $file = substr($file, 0, $index);
         }
 
+        # Parse the entry data
         my %info = $file =~ /$self->{_file_keys_re}/g;
 
+        # Ignore the file when `NoDisplay` is true
         if (exists $info{NoDisplay}) {
             next if exists $TRUE_VALUES{$info{NoDisplay}};
         }
 
+        # Ignore the file when `Hidden` is true
         if (exists $info{Hidden}) {
             next if exists $TRUE_VALUES{$info{Hidden}};
         }
@@ -136,15 +142,7 @@ sub parse {
         # If no 'Name' entry is defined, create one with the name of the file
         $info{Name} //= substr($desktop_file, rindex($desktop_file, '/') + 1, -8);
 
-        (
-         my @categories =
-           grep { exists $self->{_categories}{$_} }
-           $self->{case_insensitive_cats}
-         ? (map { lc($_) =~ tr/_a-z0-9/_/cr } split(/;/, $info{Categories} // ''))
-         : (split(/;/, $info{Categories} // ''))
-        )
-          || (!$self->{keep_unknown_categories} and next);
-
+        # Handle `skip_entry`
         if (defined($self->{skip_entry}) and ref($self->{skip_entry}) eq 'ARRAY') {
             my $skip;
             foreach my $pair_ref (@{$self->{skip_entry}}) {
@@ -156,6 +154,7 @@ sub parse {
             $skip and next;
         }
 
+        # Make user-defined substitutions
         if (defined($self->{substitutions}) and ref($self->{substitutions}) eq 'ARRAY') {
             foreach my $pair_ref (@{$self->{substitutions}}) {
                 if (exists $info{$pair_ref->{key}}) {
@@ -169,25 +168,50 @@ sub parse {
             }
         }
 
+        # Parse categories
+        (
+         my @categories =
+           grep { exists $self->{_categories}{$_} }
+           $self->{case_insensitive_cats}
+         ? (map { lc($_) =~ tr/_a-z0-9/_/cr } split(/;/, $info{Categories} // ''))
+         : (split(/;/, $info{Categories} // ''))
+        )
+          || (!$self->{keep_unknown_categories} and next);
+
+        # Remove `% ...` from the value of `Exec`
         index($info{Exec}, ' %') != -1 and $info{Exec} =~ s/ +%.*//s;
 
+        # Terminalize
         if (    $self->{terminalize}
             and defined($info{Terminal})
             and exists($TRUE_VALUES{$info{Terminal}})) {
             $info{Exec} = sprintf($self->{terminalization_format}, $self->{terminal}, $info{Exec});
         }
 
+        # Check and clean the icon name
         if (exists $info{Icon}) {
             my $icon = $info{Icon};
 
+            my $abs;
             if (substr($icon, 0, 1) eq '/') {
-                $info{Icon} = (-f $icon) ? $icon : '';
+                if (-f $icon) {    # icon is specified as an absolute path
+                    $abs = 1;
+                }
+                else {             # ... otherwise, take its basename
+                    $icon = substr($icon, 1 + rindex($icon, '/'));
+                }
             }
-            elsif ((my $rindex = rindex($icon, '.')) != -1) {
-                $info{Icon} = substr($icon, 0, $rindex);
+
+            # Remove any icon extension
+            if (!$abs) {
+                $icon =~ s/\.(?:png|jpe?g|svg|xpm)\z//i;
             }
+
+            # Store the icon back into `%info`
+            $info{Icon} = $icon;
         }
 
+        # Push the entry into its belonging categories
         if (scalar(@categories)) {
             foreach my $category (@categories) {
                 push @{$file_data->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};

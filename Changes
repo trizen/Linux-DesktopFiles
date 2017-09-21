@@ -1,5 +1,9 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
+0.21  2017-09-21
+    - Fixed a minor bug for icon names that contain one or more dots (e.g.: "foo.bar.baz").
+      Thanks to Erik Dubois for reporting this issue (https://github.com/trizen/obmenu-generator/issues/16).
+
 0.20  2017-09-15
     - Added support for desktop IDs.
       When a desktop entry is located under a local directory,
