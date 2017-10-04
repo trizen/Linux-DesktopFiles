@@ -1,6 +1,6 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
-0.22  2017-??-??
+0.22  2017-10-04
     - Make sure the category names are unique, so we don't store an application twice under the same category.
 
 0.21  2017-09-21
