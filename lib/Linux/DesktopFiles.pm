@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 our %TRUE_VALUES = (
                     'true' => 1,
