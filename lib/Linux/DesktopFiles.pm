@@ -107,6 +107,9 @@ sub get_desktop_files {
     wantarray ? values(%table) : [values(%table)];
 }
 
+# Used for unescaping strings
+my %Chr = (s => ' ', n => "\n", r => "\r", t => "\t", '\\' => '\\');
+
 sub parse {
     my ($self, $file_data, @desktop_files) = @_;
 
@@ -141,6 +144,9 @@ sub parse {
 
         # If no 'Name' entry is defined, create one with the name of the file
         $info{Name} //= substr($desktop_file, rindex($desktop_file, '/') + 1, -8);
+
+        # Unescape string escapes (\n, \t, etc.)
+        $info{$_} =~ s{\\(.)}{ $Chr{$1} // $1 }eg for (keys %info);
 
         # Handle `skip_entry`
         if (defined($self->{skip_entry}) and ref($self->{skip_entry}) eq 'ARRAY') {
