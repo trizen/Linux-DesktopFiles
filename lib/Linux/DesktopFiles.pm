@@ -110,72 +110,67 @@ sub get_desktop_files {
 # Used for unescaping strings
 my %Chr = (s => ' ', n => "\n", r => "\r", t => "\t", '\\' => '\\');
 
-sub parse {
-    my ($self, $file_data, @desktop_files) = @_;
+sub parse_file {
+    my ($self, $desktop_file) = @_;
 
-    foreach my $desktop_file (@desktop_files) {
+    # Check the filename and skip it if it matches `skip_filename_re`
+    if (defined $self->{skip_filename_re}) {
+        substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/ && return;
+    }
 
-        # Check the filename and skip it if it matches `skip_filename_re`
-        if (defined $self->{skip_filename_re}) {
-            substr($desktop_file, rindex($desktop_file, '/') + 1) =~ /$self->{skip_filename_re}/ && next;
-        }
+    # Open and read the desktop file
+    sysopen my $desktop_fh, $desktop_file, 0 or return;
+    sysread $desktop_fh, (my $file), -s $desktop_file;
 
-        # Open and read the desktop file
-        sysopen my $desktop_fh, $desktop_file, 0 or next;
-        sysread $desktop_fh, (my $file), -s $desktop_file;
+    # Locate the "[Desktop Entry]" section
+    if ((my $index = index($file, "]\n", index($file, "[Desktop Entry]") + 15)) != -1) {
+        $file = substr($file, 0, $index);
+    }
 
-        # Locate the "[Desktop Entry]" section
-        if ((my $index = index($file, "]\n", index($file, "[Desktop Entry]") + 15)) != -1) {
-            $file = substr($file, 0, $index);
-        }
+    # Parse the entry data
+    my %info = $file =~ /$self->{_file_keys_re}/g;
 
-        # Parse the entry data
-        my %info = $file =~ /$self->{_file_keys_re}/g;
+    # Ignore the file when `NoDisplay` is true
+    if (exists $info{NoDisplay}) {
+        return if exists $TRUE_VALUES{$info{NoDisplay}};
+    }
 
-        # Ignore the file when `NoDisplay` is true
-        if (exists $info{NoDisplay}) {
-            next if exists $TRUE_VALUES{$info{NoDisplay}};
-        }
+    # Ignore the file when `Hidden` is true
+    if (exists $info{Hidden}) {
+        return if exists $TRUE_VALUES{$info{Hidden}};
+    }
 
-        # Ignore the file when `Hidden` is true
-        if (exists $info{Hidden}) {
-            next if exists $TRUE_VALUES{$info{Hidden}};
-        }
+    # If no 'Name' entry is defined, create one with the name of the file
+    $info{Name} //= substr($desktop_file, rindex($desktop_file, '/') + 1, -8);
 
-        # If no 'Name' entry is defined, create one with the name of the file
-        $info{Name} //= substr($desktop_file, rindex($desktop_file, '/') + 1, -8);
+    # Unescape string escapes (\n, \t, etc.)
+    $info{$_} =~ s{\\(.)}{ $Chr{$1} // $1 }eg for (keys %info);
 
-        # Unescape string escapes (\n, \t, etc.)
-        $info{$_} =~ s{\\(.)}{ $Chr{$1} // $1 }eg for (keys %info);
-
-        # Handle `skip_entry`
-        if (defined($self->{skip_entry}) and ref($self->{skip_entry}) eq 'ARRAY') {
-            my $skip;
-            foreach my $pair_ref (@{$self->{skip_entry}}) {
-                if (exists($info{$pair_ref->{key}}) and $info{$pair_ref->{key}} =~ /$pair_ref->{re}/) {
-                    $skip = 1;
-                    last;
-                }
+    # Handle `skip_entry`
+    if (defined($self->{skip_entry}) and ref($self->{skip_entry}) eq 'ARRAY') {
+        foreach my $pair_ref (@{$self->{skip_entry}}) {
+            if (exists($info{$pair_ref->{key}}) and $info{$pair_ref->{key}} =~ /$pair_ref->{re}/) {
+                return;
             }
-            $skip and next;
         }
+    }
 
-        # Make user-defined substitutions
-        if (defined($self->{substitutions}) and ref($self->{substitutions}) eq 'ARRAY') {
-            foreach my $pair_ref (@{$self->{substitutions}}) {
-                if (exists $info{$pair_ref->{key}}) {
-                    if ($pair_ref->{global}) {
-                        $info{$pair_ref->{key}} =~ s/$pair_ref->{re}/$pair_ref->{value}/g;
-                    }
-                    else {
-                        $info{$pair_ref->{key}} =~ s/$pair_ref->{re}/$pair_ref->{value}/;
-                    }
+    # Make user-defined substitutions
+    if (defined($self->{substitutions}) and ref($self->{substitutions}) eq 'ARRAY') {
+        foreach my $pair_ref (@{$self->{substitutions}}) {
+            if (exists $info{$pair_ref->{key}}) {
+                if ($pair_ref->{global}) {
+                    $info{$pair_ref->{key}} =~ s/$pair_ref->{re}/$pair_ref->{value}/g;
+                }
+                else {
+                    $info{$pair_ref->{key}} =~ s/$pair_ref->{re}/$pair_ref->{value}/;
                 }
             }
         }
+    }
 
-        # Parse categories (and remove any duplicates)
-        my %categories;
+    # Parse categories (and remove any duplicates)
+    my %categories;
 
 #<<<
         @categories{
@@ -187,45 +182,60 @@ sub parse {
         } = ();
 #>>>
 
-        # Skip entry when there are no categories and `keep_unknown_categories` is false
-        scalar(%categories) or $self->{keep_unknown_categories} or next;
+    # Skip entry when there are no categories and `keep_unknown_categories` is false
+    scalar(%categories) or $self->{keep_unknown_categories} or return;
 
-        # Remove `% ...` from the value of `Exec`
-        index($info{Exec}, ' %') != -1 and $info{Exec} =~ s/ +%.*//s;
+    # Store the categories
+    $info{Categories} = [keys %categories];
 
-        # Terminalize
-        if (    $self->{terminalize}
-            and defined($info{Terminal})
-            and exists($TRUE_VALUES{$info{Terminal}})) {
-            $info{Exec} = sprintf($self->{terminalization_format}, $self->{terminal}, $info{Exec});
+    # Remove `% ...` from the value of `Exec`
+    index($info{Exec}, ' %') != -1 and $info{Exec} =~ s/ +%.*//s;
+
+    # Terminalize
+    if (    $self->{terminalize}
+        and defined($info{Terminal})
+        and exists($TRUE_VALUES{$info{Terminal}})) {
+        $info{Exec} = sprintf($self->{terminalization_format}, $self->{terminal}, $info{Exec});
+    }
+
+    # Check and clean the icon name
+    if (exists $info{Icon}) {
+        my $icon = $info{Icon};
+
+        my $abs;
+        if (substr($icon, 0, 1) eq '/') {
+            if (-f $icon) {    # icon is specified as an absolute path
+                $abs = 1;
+            }
+            else {             # ... otherwise, take its basename
+                $icon = substr($icon, 1 + rindex($icon, '/'));
+            }
         }
 
-        # Check and clean the icon name
-        if (exists $info{Icon}) {
-            my $icon = $info{Icon};
-
-            my $abs;
-            if (substr($icon, 0, 1) eq '/') {
-                if (-f $icon) {    # icon is specified as an absolute path
-                    $abs = 1;
-                }
-                else {             # ... otherwise, take its basename
-                    $icon = substr($icon, 1 + rindex($icon, '/'));
-                }
-            }
-
-            # Remove any icon extension
-            if (!$abs) {
-                $icon =~ s/\.(?:png|jpe?g|svg|xpm)\z//i;
-            }
-
-            # Store the icon back into `%info`
-            $info{Icon} = $icon;
+        # Remove any icon extension
+        if (!$abs) {
+            $icon =~ s/\.(?:png|jpe?g|svg|xpm)\z//i;
         }
+
+        # Store the icon back into `%info`
+        $info{Icon} = $icon;
+    }
+
+    return %info;
+}
+
+sub parse {
+    my ($self, $file_data, @desktop_files) = @_;
+
+    foreach my $desktop_file (@desktop_files) {
+        my %info = $self->parse_file($desktop_file);
+
+        # Skip when %info is empty
+        %info || next;
 
         # Push the entry into its belonging categories
-        if (scalar(%categories)) {
-            foreach my $category (keys %categories) {
+        if (exists $info{Categories}) {
+            foreach my $category (@{$info{Categories}}) {
                 push @{$file_data->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
             }
         }
@@ -424,7 +434,26 @@ it returns an array reference containing the full names of the desktop files.
 
 =item $obj->parse(\%hash, @desktop_files)
 
-Parse a list of desktop files into a HASH ref.
+Parse a list of desktop files into a HASH ref, where the keys of the HASH are
+the categories from desktop files.
+
+=item $obj->parse_file($desktop_file)
+
+Parse a given desktop file and return a key-value list as a result.
+
+Example:
+
+    my %info = $obj->parse_file($desktop_file);
+
+where C<%info> might look something like this:
+
+    my %info = (
+        Name       => "...",
+        Exec       => "...",
+        Icon       => "...",
+        Terminal   => "...",
+        Categories => ["...", "...", "..."],
+    );
 
 =item $obj->parse_desktop_files()
 
