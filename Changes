@@ -2,7 +2,7 @@ Revision history for Perl extension Linux::DesktopFiles.
 
 0.23  2017-xx-xx
     - Escaped strings are now unescaped.
-    - Added the `parse_file` method, which parses a single desktop file.
+    - Added the `parse_desktop_file` method, which parses a single desktop file.
 
 0.22  2017-10-04
     - Make sure the category names are unique, so we don't store an application twice under the same category.

@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 our %TRUE_VALUES = (
                     'true' => 1,
@@ -22,7 +22,7 @@ sub new {
 
     my %data = (
         keep_unknown_categories => 0,
-        unknown_category_key    => 'other',
+        unknown_category_key    => 'Other',
 
         case_insensitive_cats => 0,
 
@@ -110,7 +110,7 @@ sub get_desktop_files {
 # Used for unescaping strings
 my %Chr = (s => ' ', n => "\n", r => "\r", t => "\t", '\\' => '\\');
 
-sub parse_file {
+sub parse_desktop_file {
     my ($self, $desktop_file) = @_;
 
     # Check the filename and skip it if it matches `skip_filename_re`
@@ -183,7 +183,7 @@ sub parse_file {
 #>>>
 
     # Skip entry when there are no categories and `keep_unknown_categories` is false
-    scalar(%categories) or $self->{keep_unknown_categories} or return;
+    %categories or $self->{keep_unknown_categories} or return;
 
     # Store the categories
     $info{Categories} = [keys %categories];
@@ -225,22 +225,22 @@ sub parse_file {
 }
 
 sub parse {
-    my ($self, $file_data, @desktop_files) = @_;
+    my ($self, $hash_ref, @desktop_files) = @_;
 
     foreach my $desktop_file (@desktop_files) {
-        my %info = $self->parse_file($desktop_file);
+        my %info = $self->parse_desktop_file($desktop_file);
 
         # Skip when %info is empty
         %info || next;
 
         # Push the entry into its belonging categories
-        if (exists $info{Categories}) {
+        if (exists($info{Categories}) and @{$info{Categories}}) {
             foreach my $category (@{$info{Categories}}) {
-                push @{$file_data->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
+                push @{$hash_ref->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
             }
         }
-        elsif ($self->{keep_unknown_categories}) {
-            push @{$file_data->{$self->{unknown_category_key}}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
+        else {
+            push @{$hash_ref->{$self->{unknown_category_key}}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
         }
     }
 }
@@ -320,7 +320,7 @@ is equivalent with:
         case_insensitive_cats   => 0,
 
         keep_unknown_categories => 0,
-        unknown_category_key    => 'other',
+        unknown_category_key    => 'Other',
       );
 
 =back
@@ -437,13 +437,13 @@ it returns an array reference containing the full names of the desktop files.
 Parse a list of desktop files into a HASH ref, where the keys of the HASH are
 the categories from desktop files.
 
-=item $obj->parse_file($desktop_file)
+=item $obj->parse_desktop_file($desktop_file)
 
 Parse a given desktop file and return a key-value list as a result.
 
 Example:
 
-    my %info = $obj->parse_file($desktop_file);
+    my %info = $obj->parse_desktop_file($desktop_file);
 
 where C<%info> might look something like this:
 
@@ -451,7 +451,6 @@ where C<%info> might look something like this:
         Name       => "...",
         Exec       => "...",
         Icon       => "...",
-        Terminal   => "...",
         Categories => ["...", "...", "..."],
     );
 
