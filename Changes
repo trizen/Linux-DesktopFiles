@@ -1,6 +1,6 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
-0.23  2017-xx-xx
+0.23  2017-10-21
     - Escaped strings are now unescaped.
     - Added the `parse_desktop_file` method, which parses a single desktop file.
 
