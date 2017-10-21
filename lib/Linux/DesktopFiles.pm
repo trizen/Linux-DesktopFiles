@@ -207,7 +207,7 @@ sub parse_desktop_file {
             if (-f $icon) {    # icon is specified as an absolute path
                 $abs = 1;
             }
-            else {             # ... otherwise, take its basename
+            else {             # otherwise, take its basename
                 $icon = substr($icon, 1 + rindex($icon, '/'));
             }
         }
