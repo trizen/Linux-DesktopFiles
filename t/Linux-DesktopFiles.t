@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 12;
 BEGIN { use_ok('Linux::DesktopFiles') }
 
 #########################
@@ -36,7 +36,3 @@ is($entry{Name},     'The right name',     'Name');
 is($entry{Exec},     'some_command -z -9', 'Exec');
 is($entry{Terminal}, 'true',               'Terminal');
 is($entry{Icon},     'icon_name',          'Icon');
-
-# Not defined
-ok(!defined($info->{Categories}), "Categories");
-ok(!defined($info->{Encoding}),   "Encoding");

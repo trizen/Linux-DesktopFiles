@@ -242,7 +242,7 @@ sub parse {
 
         # Push the entry into its belonging categories
         foreach my $category (@{$info{Categories}}) {
-            push @{$hash_ref->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
+            push @{$hash_ref->{$category}}, \%info;
         }
     }
 }
@@ -337,8 +337,7 @@ Sets the directories where to find the desktop files.
 
 =item keys_to_keep => [qw(Name Exec Icon Comment ...)]
 
-Any valid keys from the desktop files. This keys will be stored in the returned
-hash reference when calling C<$obj-E<gt>parse_desktop_files>.
+Any valid keys from the desktop files to keep in the results from C<parse_desktop_file>. The B<Categories> option is implicitly included.
 
 =item categories => [qw(Graphics Network AudioVideo ...)]
 
@@ -376,6 +375,8 @@ When the value of B<Terminal> is true, modify the B<Exec> value to something lik
 
     terminal -e 'command'
 
+This option will include the C<Terminal> key inside the B<keys_to_keep> array.
+
 =item terminalization_format => q{%s -e '%s'}
 
 Format used by C<sprintf()> to terminalize a command which requires to be executed
@@ -411,10 +412,13 @@ Example:
 =item substitutions => [{key => 'KeyName', re => qr/REGEX/i, value => 'Value'}, {...}]
 
 Substitute, by using a regex, in the values of the desktop files.
+
 The B<key> can be any valid key from the desktop files.
+
 The B<re> can be any valid regular expression. Anything matched by the regex, will be
 replaced the string stored in B<value>.
-For global matching/substitution, you need to set the B<global> key to a true value.
+
+For global matching/substitution, set the B<global> key to a true value.
 
 Example:
 
@@ -456,17 +460,20 @@ where C<%info> might look something like this:
         Categories => ["...", "...", "..."],
     );
 
+When B<keep_unknown_categories> is true and a given entry does not belong to any category,
+C<parse_desktop_file> will set B<Categories> to [C<unknown_category_key>].
+
 =item $obj->parse_desktop_files()
 
-It returns a HASH reference which categories names as keys, and ARRAY references
-as values which contains HASH references with the keys specified in the B<keys_to_keep>
+It returns a HASH reference categorized on category names, with ARRAY references
+as values, each ARRAY containing a HASH reference with the keys specified in the B<keys_to_keep>
 option, and values from the desktop files.
 
 The returned HASH reference might look something like this:
 
         {
-          utility => [ {Exec => "...", Name => "..."}, {Exec => "...", Name => "..."} ],
-          network => [ {Exec => "...", Name => "..."}, {Exec => "...", Name => "..."} ],
+          Utility => [ {Exec => "...", Name => "..."}, {Exec => "...", Name => "..."} ],
+          Network => [ {Exec => "...", Name => "..."}, {Exec => "...", Name => "..."} ],
         }
 
 This function is equivalent with:
