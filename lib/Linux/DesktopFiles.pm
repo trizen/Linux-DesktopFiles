@@ -182,11 +182,21 @@ sub parse_desktop_file {
         } = ();
 #>>>
 
+    my @cats = keys %categories;
+
     # Skip entry when there are no categories and `keep_unknown_categories` is false
-    %categories or $self->{keep_unknown_categories} or return;
+    # When `keep_unknown_categories` is true, set `@cats` to `unknown_category_key`.
+    if (!@cats) {
+        if ($self->{keep_unknown_categories}) {
+            push @cats, $self->{unknown_category_key};
+        }
+        else {
+            return;
+        }
+    }
 
     # Store the categories
-    $info{Categories} = [keys %categories];
+    $info{Categories} = \@cats;
 
     # Remove `% ...` from the value of `Exec`
     index($info{Exec}, ' %') != -1 and $info{Exec} =~ s/ +%.*//s;
@@ -228,19 +238,11 @@ sub parse {
     my ($self, $hash_ref, @desktop_files) = @_;
 
     foreach my $desktop_file (@desktop_files) {
-        my %info = $self->parse_desktop_file($desktop_file);
-
-        # Skip when %info is empty
-        %info || next;
+        (my %info = $self->parse_desktop_file($desktop_file)) || next;
 
         # Push the entry into its belonging categories
-        if (exists($info{Categories}) and @{$info{Categories}}) {
-            foreach my $category (@{$info{Categories}}) {
-                push @{$hash_ref->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
-            }
-        }
-        else {
-            push @{$hash_ref->{$self->{unknown_category_key}}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
+        foreach my $category (@{$info{Categories}}) {
+            push @{$hash_ref->{$category}}, {map { $_ => $info{$_} } @{$self->{keys_to_keep}}};
         }
     }
 }

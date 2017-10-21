@@ -1,5 +1,8 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
+0.24  2017-xx-xx
+    - When `keep_unknown_categories` is true, `parse_desktop_file` will set `Categories` to [`unknown_category_key`].
+
 0.23  2017-10-21
     - Escaped strings are now unescaped.
     - Added the `parse_desktop_file` method, which parses a single desktop file.
