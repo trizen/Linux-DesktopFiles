@@ -1,5 +1,9 @@
 Revision history for Perl extension Linux::DesktopFiles.
 
+0.25  2017-10-22
+    - `parse_desktop_file()` and `parse_desktop_files()` are now context-sensitive, returning a key-value list or a HASH reference, depending on the context.
+    - Documentation improvements.
+
 0.24  2017-10-21
     - When `keep_unknown_categories` is true and a given entry does not belong to any category, `parse_desktop_file` will set `Categories` to [`unknown_category_key`].
 

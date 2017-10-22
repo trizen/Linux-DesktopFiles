@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 our %TRUE_VALUES = (
                     'true' => 1,
@@ -231,27 +231,29 @@ sub parse_desktop_file {
         $info{Icon} = $icon;
     }
 
-    return %info;
+    wantarray ? (%info) : \%info;
 }
 
 sub parse {
     my ($self, $hash_ref, @desktop_files) = @_;
 
     foreach my $desktop_file (@desktop_files) {
-        (my %info = $self->parse_desktop_file($desktop_file)) || next;
+        my $entry = $self->parse_desktop_file($desktop_file) // next;
 
         # Push the entry into its belonging categories
-        foreach my $category (@{$info{Categories}}) {
-            push @{$hash_ref->{$category}}, \%info;
+        foreach my $category (@{$entry->{Categories}}) {
+            push @{$hash_ref->{$category}}, $entry;
         }
     }
+
+    $hash_ref;
 }
 
 sub parse_desktop_files {
     my ($self) = @_;
     my %categories;
     $self->parse(\%categories, $self->get_desktop_files);
-    \%categories;
+    wantarray ? (%categories) : \%categories;
 }
 
 1;
@@ -306,21 +308,19 @@ is equivalent with:
                                 '/usr/share/applications'],
 
         keys_to_keep        => ["Name", "Exec", "Icon"],
-        categories          => [
-                                qw( Utility
-                                  Development
-                                  Education
-                                  Game
-                                  Graphics
-                                  AudioVideo
-                                  Network
-                                  Office
-                                  Settings
-                                  System )
-                               ],
+        categories          => [qw( Utility
+                                    Development
+                                    Education
+                                    Game
+                                    Graphics
+                                    AudioVideo
+                                    Network
+                                    Office
+                                    Settings
+                                    System
+                               )],
 
         case_insensitive_cats   => 0,
-
         keep_unknown_categories => 0,
         unknown_category_key    => 'Other',
       );
@@ -337,7 +337,7 @@ Sets the directories where to find the desktop files.
 
 =item keys_to_keep => [qw(Name Exec Icon Comment ...)]
 
-Any valid keys from the desktop files to keep in the results from C<parse_desktop_file>. The B<Categories> option is implicitly included.
+Any valid keys from the desktop files to keep in the results from C<parse_desktop_file>. The B<Categories> key is implicitly included.
 
 =item categories => [qw(Graphics Network AudioVideo ...)]
 
@@ -352,18 +352,17 @@ or stored in the B<unknown_category_key> when C<keep_unknown_categories> is set 
 
 =item keep_unknown_categories => $bool
 
-When an item is not part of any specified category, will be stored inside the
+When an entry is not part of any specified category, it will be stored inside the
 unknown category, specified by B<unknown_category_key>.
 
 =item unknown_category_key => $name
 
-Category name where to store the applications which do not belong to
-any specified category.
+Category name where to store the entries which do not belong to any specified category.
 
 =item case_insensitive_cats => $bool
 
 This option makes the category names case insensitive, by lowercasing and replacing
-any non-alpha numeric characters with an underscore. For example, "X-XFCE" becomes "x_xfce".
+any non-alphanumeric characters with an underscore. For example, C<X-XFCE> becomes C<x_xfce>.
 
 =item terminal => $command
 
@@ -384,7 +383,7 @@ inside a terminal.
 
 Used internally as:
 
-    sprintf($self->{terminalization_format}, $self->{terminal}, $command);
+    sprintf($self->{terminalization_format}, $self->{terminal}, $entry{Exec});
 
 =back
 
@@ -395,11 +394,13 @@ Used internally as:
 =item skip_filename_re => qr/regex/
 
 Skip any desktop file if its file name matches the regex.
+
 B<NOTE:> File names are from the last slash to the end.
 
 =item skip_entry  => [{key => 'KeyName', re => qr/REGEX/i}, {...}]
 
-Skip any desktop file if the value from a given key matches the specified regular expression.
+Skip any desktop file if the value from a given key matches a regular expression.
+
 The B<key> can be any valid key from the desktop files.
 
 Example:
@@ -411,12 +412,12 @@ Example:
 
 =item substitutions => [{key => 'KeyName', re => qr/REGEX/i, value => 'Value'}, {...}]
 
-Substitute, by using a regex, in the values of the desktop files.
+Substitute, by using a regex, in the returned values from desktop files.
 
 The B<key> can be any valid key from the desktop files.
 
 The B<re> can be any valid regular expression. Anything matched by the regex, will be
-replaced the string stored in B<value>.
+replaced with the string stored in B<value>.
 
 For global matching/substitution, set the B<global> key to a true value.
 
@@ -435,13 +436,15 @@ Example:
 
 =item $obj->get_desktop_files()
 
-Get all desktop files. In list context returns a list, but in scalar context,
-it returns an array reference containing the full names of the desktop files.
+Returns a list with the absolute paths to all desktop files from B<desktop_files_paths>.
+
+In scalar context, returns an ARRAY reference.
 
 =item $obj->parse(\%hash, @desktop_files)
 
 Parse a list of desktop files into a HASH ref, where the keys of the HASH are
-the categories from desktop files.
+the categories from desktop files and the values are ARRAY references containing
+information about each entry, as returned by C<parse_desktop_file()>.
 
 =item $obj->parse_desktop_file($desktop_file)
 
@@ -463,13 +466,17 @@ where C<%info> might look something like this:
 When B<keep_unknown_categories> is true and a given entry does not belong to any category,
 C<parse_desktop_file> will set B<Categories> to [C<unknown_category_key>].
 
+Returns a HASH reference in scalar contenxt.
+
+When a given file cannot be parsed or its specified as I<Hidden> or I<NoDisplay>, an empty list is returned (undef in scalar context).
+
 =item $obj->parse_desktop_files()
 
 It returns a HASH reference categorized on category names, with ARRAY references
 as values, each ARRAY containing a HASH reference with the keys specified in the B<keys_to_keep>
 option, and values from the desktop files.
 
-The returned HASH reference might look something like this:
+The returned HASH reference may look something like this:
 
         {
           Utility => [ {Exec => "...", Name => "..."}, {Exec => "...", Name => "..."} ],
@@ -479,6 +486,8 @@ The returned HASH reference might look something like this:
 This function is equivalent with:
 
     $obj->parse(\%hash, $obj->get_desktop_files);
+
+In list contenxt, it returns a key-value list, while, in scalar context, it returns a HASH reference.
 
 =back
 
