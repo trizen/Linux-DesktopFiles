@@ -424,7 +424,7 @@ For global matching/substitution, set the B<global> key to a true value.
 Example:
 
         substitutions => [
-            {key => 'Exec', re => qr/xterm/,    value => 'sakura'},
+            {key => 'Exec', re => qr/xterm/,    value => 'terminator'},
             {key => 'Exec', re => qr/\$HOME\b/, value => '/my/home', global => 1},
         ],
 
