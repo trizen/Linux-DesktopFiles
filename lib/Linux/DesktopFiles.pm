@@ -497,7 +497,7 @@ L<https://github.com/trizen/Linux-DesktopFiles>
 
 =head1 AUTHOR
 
-Daniel "Trizen" Șuteu, E<lt>trizenx@gmail.comE<gt>
+Daniel Șuteu, C<< <trizen at cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
