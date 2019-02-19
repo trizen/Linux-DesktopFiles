@@ -1,7 +1,7 @@
 {
    "abstract" : "Fast parsing of the Linux desktop files.",
    "author" : [
-      "Daniel \"Trizen\" Șuteu <trizenx@gmail.com>"
+      "Daniel Șuteu <trizen@cpan.org>"
    ],
    "dynamic_config" : 1,
    "generated_by" : "Module::Build version 0.4224",
@@ -45,5 +45,5 @@
       }
    },
    "version" : "0.25",
-   "x_serialization_backend" : "JSON::PP version 2.97001"
+   "x_serialization_backend" : "JSON::PP version 4.00"
 }
