@@ -3,8 +3,8 @@
    "author" : [
       "Daniel Șuteu <trizen@cpan.org>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4224",
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4231",
    "license" : [
       "artistic_2"
    ],
@@ -45,5 +45,5 @@
       }
    },
    "version" : "0.25",
-   "x_serialization_backend" : "JSON::PP version 4.00"
+   "x_serialization_backend" : "JSON::PP version 4.05"
 }

@@ -14,6 +14,7 @@ my $builder = Module::Build->new(
     dist_abstract     => 'Fast parsing of the Linux desktop files.',
     release_status    => 'stable',
 
+    dynamic_config    => 0,
     extra_manify_args => { utf8 => 1 },
 
     configure_requires => {
