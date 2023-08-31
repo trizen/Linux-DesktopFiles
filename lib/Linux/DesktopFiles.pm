@@ -60,12 +60,12 @@ sub new {
         ],
 
         %opt,
-               );
+    );
 
     $data{_file_keys_re} = do {
         my %seen;
-        my @keys = map { quotemeta($_) } grep { !$seen{$_}++ }
-          (@{$data{keys_to_keep}}, qw(Hidden NoDisplay Categories), ($data{terminalize} ? qw(Terminal) : ()));
+        my @keys = map { quotemeta($_) }
+          grep { !$seen{$_}++ } (@{$data{keys_to_keep}}, qw(Hidden NoDisplay Categories), ($data{terminalize} ? qw(Terminal) : ()));
 
         local $" = q{|};
         qr/^(@keys)=(.*\S)/m;
