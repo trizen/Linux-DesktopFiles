@@ -9,7 +9,7 @@ use 5.014;
 #use strict;
 #use warnings;
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 our %TRUE_VALUES = (
                     'true' => 1,
@@ -671,7 +671,7 @@ For global matching/substitution, set the B<global> key to a true value.
 Example:
 
         substitutions => [
-            {key => 'Exec', re => qr/xterm/,    value => 'terminator'},
+            {key => 'Exec', re => qr/xterm/,    value => 'tilix'},
             {key => 'Exec', re => qr/\$HOME\b/, value => '/my/home', global => 1},
         ],
 
@@ -704,10 +704,11 @@ Example:
 where C<%info> might look something like this:
 
     my %info = (
-        Name       => "...",
-        Exec       => "...",
-        Icon       => "...",
-        Categories => ["...", "...", "..."],
+        Name          => "...",
+        Exec          => "...",
+        Icon          => "...",
+        Categories    => ["...", "...", "..."],
+        SubCategories => {Category1 => ["...", "..."], Category2 => ["...", "..."]},
     );
 
 When B<keep_unknown_categories> is true and a given entry does not belong to any category,
